@@ -7,8 +7,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -26,26 +24,14 @@ public class WebCrawlerServiceImpl implements WebCrawlerService {
 
 	@Override
 	public Mono<SiteMap> getSiteMap(String webURL) {
-		SiteMap siteMap = new SiteMap();
 		return webClient.get().uri(webURL)
-				//.header(HttpHeaders.CONTENT_TYPE,MediaType.TEXT_HTML_VALUE)
 				.retrieve()
-				//.toEntity(String.class)
 				.bodyToMono(String.class)
-				//.subscribe(System.out::println);
-				//.doOnSuccess(res-> Mono.just(res))
-				//.subscribe(System.out::println)
 				.flatMap(content -> {
-					SiteMap siteMap1 = new SiteMap();
-					siteMap1.getLinks().addAll(getLinksFromHTMLContent(content, webURL));
-					return Mono.just(siteMap1);
+					SiteMap siteMap = new SiteMap();
+					siteMap.getLinks().addAll(getLinksFromHTMLContent(content, webURL));
+					return Mono.just(siteMap);
 				});
-		//return response;
-//		return response.subscribe(content -> {
-//			siteMap.getLinks().addAll(getLinksFromHTMLContent(content, webURL));
-//			return Mono.just(siteMap);
-//		});
-		//return Mono.just(siteMap);
 	}
 
 	private List<Link> getLinksFromHTMLContent(String content, String domain) {
